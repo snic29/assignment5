@@ -152,3 +152,31 @@ def test_division_by_zero(a: Number, b: Number) -> None:
     # Assert the exception message contains the expected error message
     assert "Division by zero is not allowed." in str(excinfo.value), \
         f"Expected error message 'Division by zero is not allowed.', but got '{excinfo.value}'"
+
+# ----- POWER UNIT TESTS -----
+@pytest.mark.parametrize(
+    "a, b, expected",
+    [
+        (2, 0, 1),          # power_to_zero
+        (2, 3, 8),          # power_two_positive_integers
+        (-2, 3, -8),        # power_negative_base_odd_exponent
+        (-2, 4, 16),        # power_negative_base_even_exponent
+        (2.0, 3.0, 8.0),    # power_two_positive_floats
+        (-2.0, 3.0, -8.0),  # power_negative_float_odd_exponent
+        (-2.0, 4.0, 16.0),  # power_negative_float_even_exponent
+        (9, 0.5, 3.0)       # power_sqrt
+    ],
+    ids=[
+        "power_to_zero",
+        "power_two_positive_integers",
+        "power_negative_base_odd_exponent",
+        "power_negative_base_even_exponent",
+        "power_two_positive_floats",
+        "power_negative_float_odd_exponent",
+        "power_negative_float_even_exponent",
+        "power_sqrt"
+    ]
+)
+def test_power(a: Number, b: Number, expected: Number) -> None:
+    result = Operations.power(a, b)
+    assert result == expected, f"Expected power({a}, {b}) to be {expected}, but got {result}"
