@@ -105,7 +105,7 @@ pytest
 
 Parameterized tests are used in tests/test_operations.py to efficiently test multiple input scenarios.
 
-# ⚙️ 4. GitHub Actions
+# ⚙️ 5. GitHub Actions
 
 GitHub Actions automatically runs the test suite when code is pushed to the repository.
 
@@ -115,7 +115,7 @@ The CI workflow:
 - Requires 100% test coverage.
 - Fails if any test fails or coverage is below 100%.
 
-# 📁 5. Project Structure
+# 📁 6. Project Structure
 
 ```text
 calculator/
