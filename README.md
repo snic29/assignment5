@@ -1,6 +1,6 @@
 # 🧮 Command-Line Calculator
 
-This is a simple Python command-line calculator with a REPL interface supporting addition, subtraction, multiplication, and division.
+This is a simple Python command-line calculator with a REPL interface supporting addition, subtraction, multiplication, division, and exponentiation.
 
 ---
 
@@ -61,6 +61,15 @@ Start the calculator:
 python3 main.py
 ```
 
+After starting, the calculator displays a welcome message and waits for commands:
+
+```bash
+Welcome to the Professional Calculator REPL!
+Type 'help' for instructions or 'exit' to quit.
+
+>>
+```
+
 Enter an operation followed by two numbers:
 
 ```bash
@@ -68,6 +77,7 @@ add 5 3
 subtract -10 4
 multiply 2.5 4
 divide 10 2
+power 2 3
 ```
 
 The calculator supports:
@@ -75,12 +85,17 @@ The calculator supports:
 - **`subtract`**
 - **`multiply`**
 - **`divide`**
-
-Enter **`exit`** to quit.
+- **`power`**
 
 The calculator handles invalid input, unknown operations, and division by zero with appropriate error messages.
 
-# 🧪 3. Running Tests
+# 📜 3. Special Commands
+
+- **`help`** - Displays usage instructions and the list of supported operations
+- **`history`** - Displays all successful calculations performed during the current session
+- **`exit`** - Exits the calculator
+
+# 🧪 4. Running Tests
 
 Run all tests:
 
@@ -105,14 +120,17 @@ The CI workflow:
 ```text
 calculator/
 ├── app/
+│   ├── calculation/
+│   │   └── __init__.py
 │   ├── calculator/
 │   │   └── __init__.py
-│   └── operations/
-│       └── __init__.py
+│   │── operations/
+│   │    └── __init__.py
 │   └── __init__.py
 ├── tests/
 │   ├── __init__.py
 │   ├── conftest.py
+│   ├── test_caculation.py
 │   ├── test_caculator.py
 │   └── test_operations.py
 ├── .github/workflows/
