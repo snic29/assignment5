@@ -17,3 +17,7 @@ class Operations:
         if b == 0:
             raise ValueError("Division by zero is not allowed.")
         return a / b
+
+    @staticmethod
+    def power(a: float, b: float) -> float:
+        return a ** b
