@@ -1,341 +1,233 @@
 import pytest
-from typing import Union
-from app.operations import Operations
-from app.calculation import (
-    Calculation,
-    CalculationFactory,
-    AddCalculation,
-    SubtractCalculation,
-    MultiplyCalculation,
-    DivideCalculation,
-    PowerCalculation,
-)
+from decimal import Decimal
+from datetime import datetime
+from app.calculation import Calculation
+from app.calculator_memento import CalculatorMemento
+from app.exceptions import OperationError
+import logging
 
-# Define a type alias for numbers that can be either int or float
-Number = Union[int, float]
-
-# ----- ADD CALCULATION TESTS -----
-@pytest.mark.parametrize(
-    "a, b, expected",
-    [
-        (2, 3, 5),            # add_positive_calculation
-        (-2, 3, 1),           # add_negative_calculation
-        (2.5, 3.5, 6.0),      # add_float_calculation
-    ],
-    ids=[
-        "add_positive_calculation",
-        "add_negative_calculation",
-        "add_float_calculation",
-    ]
-)
-def test_add_calculation(a: Number, b: Number, expected: Number) -> None:
-    calculation = AddCalculation(a, b)
-    result = calculation.execute()
-    assert result == expected, f"Expected AddCalculation({a}, {b}) to be {expected}, but got {result}"
+def test_addition():
+    calc = Calculation(operation="Addition", operand1=Decimal("2"), operand2=Decimal("3"))
+    assert calc.result == Decimal("5")
 
 
-# ----- SUBTRACT CALCULATION TESTS -----
-@pytest.mark.parametrize(
-    "a, b, expected",
-    [
-        (5, 3, 2),            # subtract_positive_calculation
-        (-2, 3, -5),          # subtract_negative_calculation
-        (5.5, 2.5, 3.0),      # subtract_float_calculation
-    ],
-    ids=[
-        "subtract_positive_calculation",
-        "subtract_negative_calculation",
-        "subtract_float_calculation",
-    ]
-)
-def test_subtract_calculation(a: Number, b: Number, expected: Number) -> None:
-    calculation = SubtractCalculation(a, b)
-    result = calculation.execute()
-    assert result == expected, f"Expected SubtractCalculation({a}, {b}) to be {expected}, but got {result}"
-
-# ----- MULTIPLY CALCULATION TESTS -----
-@pytest.mark.parametrize(
-    "a, b, expected",
-    [
-        (2, 3, 6),            # multiply_positive_calculation
-        (-2, 3, -6),          # multiply_negative_calculation
-        (2.5, 4.0, 10.0),     # multiply_float_calculation
-    ],
-    ids=[
-        "multiply_positive_calculation",
-        "multiply_negative_calculation",
-        "multiply_float_calculation",
-    ]
-)
-def test_multiply_calculation(a: Number, b: Number, expected: Number) -> None:
-    calculation = MultiplyCalculation(a, b)
-    result = calculation.execute()
-    assert result == expected, f"Expected MultiplyCalculation({a}, {b}) to be {expected}, but got {result}"
-
-# ----- DIVIDE CALCULATION TESTS -----
-@pytest.mark.parametrize(
-    "a, b, expected",
-    [
-        (6, 3, 2),            # divide_positive_calculation
-        (-6, 3, -2),          # divide_negative_calculation
-        (7.0, 3.5, 2.0),      # divide_float_calculation
-    ],
-    ids=[
-        "divide_positive_calculation",
-        "divide_negative_calculation",
-        "divide_float_calculation",
-    ]
-)
-def test_divide_calculation(a: Number, b: Number, expected: Number) -> None:
-    calculation = DivideCalculation(a, b)
-    result = calculation.execute()
-    assert result == expected, f"Expected DivideCalculation({a}, {b}) to be {expected}, but got {result}"
-
-# ----- DIVIDE BY ZERO CALCULATION TESTS -----
-@pytest.mark.parametrize(
-    "a, b",
-    [
-        (1, 0),               # divide_positive_integer_by_zero
-        (-1, 0),              # divide_negative_integer_by_zero
-        (1.2, 0),             # divide_positive_float_by_zero
-        (-1.2, 0),            # divide_negative_float_by_zero
-        (0, 0),               # divide_zero_by_zero
-    ],
-    ids=[
-        "divide_positive_integer_by_zero",
-        "divide_negative_integer_by_zero",
-        "divide_positive_float_by_zero",
-        "divide_negative_float_by_zero",
-        "divide_zero_by_zero",
-    ]
-)
-def test_divide_by_zero(a: Number, b: Number) -> None:
-    calculation = DivideCalculation(a, b)
-
-    with pytest.raises(ZeroDivisionError, match="Division by zero is not allowed.") as excinfo:
-        calculation.execute()
-
-    assert "Division by zero is not allowed." in str(excinfo.value), \
-        f"Expected error message 'Division by zero is not allowed.', but got '{excinfo.value}'"
-
-# ----- POWER CALCULATION TESTS -----
-@pytest.mark.parametrize(
-    "a, b, expected",
-    [
-        (2, 0, 1),            # power_to_zero
-        (2, 3, 8),            # power_positive_integers
-        (-2, 3, -8),          # power_negative_base_odd_exponent
-        (-2, 4, 16),          # power_negative_base_even_exponent
-        (2.0, 3.0, 8.0),      # power_positive_floats
-        (9, 0.5, 3.0),        # power_square_root
-    ],
-    ids=[
-        "power_to_zero",
-        "power_positive_integers",
-        "power_negative_base_odd_exponent",
-        "power_negative_base_even_exponent",
-        "power_positive_floats",
-        "power_square_root",
-    ]
-)
-def test_power_calculation(a: Number, b: Number, expected: Number) -> None:
-    calculation = PowerCalculation(a, b)
-    result = calculation.execute()
-    assert result == expected, f"Expected PowerCalculation({a}, {b}) to be {expected}, but got {result}"
+def test_subtraction():
+    calc = Calculation(operation="Subtraction", operand1=Decimal("5"), operand2=Decimal("3"))
+    assert calc.result == Decimal("2")
 
 
-# ----- CALCULATION STRING REPRESENTATION TESTS -----
-@pytest.mark.parametrize(
-    "calculation, expected",
-    [
-        (
-            AddCalculation(2, 3),
-            "AddCalculation: 2 Add 3 = 5"
-        ),
-        (
-            SubtractCalculation(5, 3),
-            "SubtractCalculation: 5 Subtract 3 = 2"
-        ),
-        (
-            MultiplyCalculation(2, 3),
-            "MultiplyCalculation: 2 Multiply 3 = 6"
-        ),
-        (
-            DivideCalculation(6, 3),
-            "DivideCalculation: 6 Divide 3 = 2.0"
-        ),
-        (
-            PowerCalculation(2, 3),
-            "PowerCalculation: 2 Power 3 = 8"
-        ),
-    ],
-    ids=[
-        "str_add_calculation",
-        "str_subtract_calculation",
-        "str_multiply_calculation",
-        "str_divide_calculation",
-        "str_power_calculation",
-    ]
-)
-def test_calculation_str(calculation: Calculation, expected: str) -> None:
-    assert str(calculation) == expected
+def test_multiplication():
+    calc = Calculation(operation="Multiplication", operand1=Decimal("4"), operand2=Decimal("2"))
+    assert calc.result == Decimal("8")
 
 
-# ----- CALCULATION REPR TESTS -----
-@pytest.mark.parametrize(
-    "calculation, expected",
-    [
-        (
-            AddCalculation(2, 3),
-            "AddCalculation(a=2, b=3)"
-        ),
-        (
-            SubtractCalculation(-2, 3),
-            "SubtractCalculation(a=-2, b=3)"
-        ),
-        (
-            MultiplyCalculation(2.5, 4.0),
-            "MultiplyCalculation(a=2.5, b=4.0)"
-        ),
-        (
-            DivideCalculation(6, 3),
-            "DivideCalculation(a=6, b=3)"
-        ),
-        (
-            PowerCalculation(2, 3),
-            "PowerCalculation(a=2, b=3)"
-        ),
-    ],
-    ids=[
-        "repr_add_calculation",
-        "repr_subtract_calculation",
-        "repr_multiply_calculation",
-        "repr_divide_calculation",
-        "repr_power_calculation",
-    ]
-)
-def test_calculation_repr(calculation: Calculation, expected: str) -> None:
-    assert repr(calculation) == expected
+def test_division():
+    calc = Calculation(operation="Division", operand1=Decimal("8"), operand2=Decimal("2"))
+    assert calc.result == Decimal("4")
 
 
-# ----- ABSTRACT CALCULATION TESTS -----
-def test_calculation_is_abstract() -> None:
-    with pytest.raises(TypeError):
-        Calculation(2, 3)
+def test_division_by_zero():
+    with pytest.raises(OperationError, match="Division by zero is not allowed."):
+        Calculation(operation="Division", operand1=Decimal("8"), operand2=Decimal("0"))
 
 
-# ----- FACTORY CREATION TESTS -----
-@pytest.mark.parametrize(
-    "calculation_type, expected_class",
-    [
-        ("add", AddCalculation),             # factory_create_add
-        ("subtract", SubtractCalculation),   # factory_create_subtract
-        ("multiply", MultiplyCalculation),   # factory_create_multiply
-        ("divide", DivideCalculation),       # factory_create_divide
-        ("power", PowerCalculation),         # factory_create_power
-    ],
-    ids=[
-        "factory_create_add",
-        "factory_create_subtract",
-        "factory_create_multiply",
-        "factory_create_divide",
-        "factory_create_power",
-    ]
-)
-def test_factory_create_calculation(calculation_type: str, expected_class: type[Calculation]) -> None:
-    calculation = CalculationFactory.create_calculation(calculation_type, 6, 3)
-    assert isinstance(calculation, expected_class)
-    assert calculation.a == 6
-    assert calculation.b == 3
+def test_power():
+    calc = Calculation(operation="Power", operand1=Decimal("2"), operand2=Decimal("3"))
+    assert calc.result == Decimal("8")
 
 
-# ----- FACTORY CASE-INSENSITIVE TESTS -----
-@pytest.mark.parametrize(
-    "calculation_type, expected_class",
-    [
-        ("Add", AddCalculation),             # factory_add_mixed_case
-        ("SUBTRACT", SubtractCalculation),   # factory_subtract_uppercase
-        ("Multiply", MultiplyCalculation),   # factory_multiply_mixed_case
-        ("DIVIDE", DivideCalculation),       # factory_divide_uppercase
-        ("Power", PowerCalculation),         # factory_power_mixed_case
-    ],
-    ids=[
-        "factory_add_mixed_case",
-        "factory_subtract_uppercase",
-        "factory_multiply_mixed_case",
-        "factory_divide_uppercase",
-        "factory_power_mixed_case",
-    ]
-)
-def test_factory_case_insensitive(calculation_type: str, expected_class: type[Calculation]) -> None:
-    calculation = CalculationFactory.create_calculation(calculation_type, 6, 3)
-    assert isinstance(calculation, expected_class)
+def test_negative_power():
+    with pytest.raises(OperationError, match="Negative exponents are not supported."):
+        Calculation(operation="Power", operand1=Decimal("2"), operand2=Decimal("-3"))
 
 
-# ----- FACTORY INVALID TYPE TESTS -----
-@pytest.mark.parametrize(
-    "calculation_type",
-    [
-        "unknown",              # factory_unknown_type
-        "modulus",              # factory_unsupported_operation
-        "",                     # factory_empty_type
-        "addition",             # factory_invalid_add_type
-        "PowerCalculation",     # factory_invalid_class_name
-    ],
-    ids=[
-        "factory_unknown_type",
-        "factory_unsupported_operation",
-        "factory_empty_type",
-        "factory_invalid_add_type",
-        "factory_invalid_class_name",
-    ]
-)
-def test_factory_invalid_type(calculation_type: str) -> None:
-    with pytest.raises(ValueError, match=f"Unsupported calculation type: '{calculation_type}'") as excinfo:
-        CalculationFactory.create_calculation(calculation_type, 2, 3)
-    assert calculation_type in str(excinfo.value)
+def test_root():
+    calc = Calculation(operation="Root", operand1=Decimal("16"), operand2=Decimal("2"))
+    assert calc.result == Decimal("4")
 
 
-# ----- FACTORY REGISTRATION TESTS -----
-def test_register_calculation_returns_subclass() -> None:
-    class TestCalculation(Calculation):
-        def execute(self) -> float:
-            return self.a + self.b
-
-    decorator = CalculationFactory.register_calculation("test")
-
-    registered_class = decorator(TestCalculation)
-
-    assert registered_class is TestCalculation
-    assert CalculationFactory._calculations["test"] is TestCalculation
-
-    # Prevent this test from affecting other tests
-    del CalculationFactory._calculations["test"]
+def test_invalid_root():
+    with pytest.raises(OperationError, match="Cannot calculate root of negative number."):
+        Calculation(operation="Root", operand1=Decimal("-16"), operand2=Decimal("2"))
 
 
-def test_register_calculation_converts_type_to_lowercase() -> None:
-    class TestCalculation(Calculation):
-        def execute(self) -> float:
-            return self.a + self.b
+def test_unknown_operation():
+    with pytest.raises(OperationError, match="Unknown operation"):
+        Calculation(operation="Unknown", operand1=Decimal("5"), operand2=Decimal("3"))
 
-    CalculationFactory.register_calculation("TEST")(TestCalculation)
+# Calculation Error
+def test_calculation_handles_arithmetic_error():
+    calculation = Calculation.__new__(Calculation)
 
-    assert "test" in CalculationFactory._calculations
-    assert CalculationFactory._calculations["test"] is TestCalculation
+    calculation.operation = "Addition"
+    calculation.operand1 = Decimal("2")
+    calculation.operand2 = Decimal("3")
 
-    del CalculationFactory._calculations["test"]
+    class BadDecimal:
+        def __add__(self, other):
+            raise ArithmeticError("Test arithmetic failure")
+
+    calculation.operand1 = BadDecimal()
+
+    with pytest.raises(OperationError, match="Calculation failed: Test arithmetic failure"):
+        calculation.calculate()
 
 
-def test_register_duplicate_calculation_raises_value_error() -> None:
-    class TestCalculation(Calculation):
-        def execute(self) -> float:
-            return self.a + self.b
+def test_to_dict():
+    calc = Calculation(operation="Addition", operand1=Decimal("2"), operand2=Decimal("3"))
+    result_dict = calc.to_dict()
+    assert result_dict == {
+        "operation": "Addition",
+        "operand1": "2",
+        "operand2": "3",
+        "result": "5",
+        "timestamp": calc.timestamp.isoformat()
+    }
 
-    CalculationFactory.register_calculation("duplicate_test")(
-        TestCalculation
+
+def test_from_dict():
+    data = {
+        "operation": "Addition",
+        "operand1": "2",
+        "operand2": "3",
+        "result": "5",
+        "timestamp": datetime.now().isoformat()
+    }
+    calc = Calculation.from_dict(data)
+    assert calc.operation == "Addition"
+    assert calc.operand1 == Decimal("2")
+    assert calc.operand2 == Decimal("3")
+    assert calc.result == Decimal("5")
+
+
+def test_invalid_from_dict():
+    data = {
+        "operation": "Addition",
+        "operand1": "invalid",
+        "operand2": "3",
+        "result": "5",
+        "timestamp": datetime.now().isoformat()
+    }
+    with pytest.raises(OperationError, match="Invalid calculation data"):
+        Calculation.from_dict(data)
+
+
+def test_str():
+    calculation = Calculation(
+        operation="Addition",
+        operand1=Decimal("2"),
+        operand2=Decimal("3")
     )
 
-    with pytest.raises(ValueError, match="Calculation type 'DUPLICATE_TEST' is already registered."):
-        CalculationFactory.register_calculation("DUPLICATE_TEST")(TestCalculation)
+    assert str(calculation) == "Addition(2, 3) = 5"
 
-    del CalculationFactory._calculations["duplicate_test"]
+
+def test_repr():
+    timestamp = datetime(2026, 1, 1, 12, 0, 0)
+
+    calculation = Calculation(
+        operation="Addition",
+        operand1=Decimal("2"),
+        operand2=Decimal("3"),
+        timestamp=timestamp
+    )
+
+    assert repr(calculation) == (
+        "Calculation(operation='Addition', "
+        "operand1=2, "
+        "operand2=3, "
+        "result=5, "
+        "timestamp='2026-01-01T12:00:00')"
+    )
+
+
+def test_calculation_non_calculation():
+    calculation = Calculation(
+        operation="Addition",
+        operand1=Decimal("2"),
+        operand2=Decimal("3")
+    )
+
+    assert calculation.__eq__("not a calculation") is NotImplemented
+
+
+def test_format_result():
+    calc = Calculation(operation="Division", operand1=Decimal("1"), operand2=Decimal("3"))
+    assert calc.format_result(precision=2) == "0.33"
+    assert calc.format_result(precision=10) == "0.3333333333"
+
+
+def test_equality():
+    calc1 = Calculation(operation="Addition", operand1=Decimal("2"), operand2=Decimal("3"))
+    calc2 = Calculation(operation="Addition", operand1=Decimal("2"), operand2=Decimal("3"))
+    calc3 = Calculation(operation="Subtraction", operand1=Decimal("5"), operand2=Decimal("3"))
+    assert calc1 == calc2
+    assert calc1 != calc3
+
+
+# New Test to Cover Logging Warning
+def test_from_dict_result_mismatch(caplog):
+    """
+    Test the from_dict method to ensure it logs a warning when the saved result
+    does not match the computed result.
+    """
+    # Arrange
+    data = {
+        "operation": "Addition",
+        "operand1": "2",
+        "operand2": "3",
+        "result": "10",  # Incorrect result to trigger logging.warning
+        "timestamp": datetime.now().isoformat()
+    }
+
+    # Act
+    with caplog.at_level(logging.WARNING):
+        calc = Calculation.from_dict(data)
+
+    # Assert
+    assert "Loaded calculation result 10 differs from computed result 5" in caplog.text
+
+
+# Memento Tests
+
+def test_calculator_memento_to_dict():
+    calculation = Calculation(
+        operation="Addition",
+        operand1=Decimal("2"),
+        operand2=Decimal("3")
+    )
+
+    timestamp = datetime(2026, 1, 1, 12, 0, 0)
+
+    memento = CalculatorMemento(
+        history=[calculation],
+        timestamp=timestamp
+    )
+
+    result = memento.to_dict()
+
+    assert result['timestamp'] == '2026-01-01T12:00:00'
+    assert len(result['history']) == 1
+    assert result['history'][0] == calculation.to_dict()
+
+
+def test_calculator_memento_from_dict():
+    calculation = Calculation(
+        operation="Addition",
+        operand1=Decimal("2"),
+        operand2=Decimal("3")
+    )
+
+    data = {
+        'history': [calculation.to_dict()],
+        'timestamp': '2026-01-01T12:00:00'
+    }
+
+    memento = CalculatorMemento.from_dict(data)
+
+    assert len(memento.history) == 1
+    assert memento.history[0].operation == "Addition"
+    assert memento.history[0].operand1 == Decimal("2")
+    assert memento.history[0].operand2 == Decimal("3")
+    assert memento.history[0].result == Decimal("5")
+    assert memento.timestamp == datetime(2026, 1, 1, 12, 0, 0)
