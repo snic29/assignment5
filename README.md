@@ -1,6 +1,6 @@
 # 🧮 Command-Line Calculator
 
-This is a simple Python command-line calculator with a REPL interface supporting addition, subtraction, multiplication, division, and exponentiation.
+This is an advanced Python command-line REPL calculator application. This version incorporates software design patterns, persistent history management using pandas, environment variable configuration, expanded arithmetic operations, and 100% test coverage enforced via GitHub Actions.
 
 ---
 
@@ -61,23 +61,34 @@ Start the calculator:
 python3 main.py
 ```
 
-After starting, the calculator displays a welcome message and waits for commands:
+After starting, the calculator displays a welcome message and waits for a command:
 
 ```bash
-Welcome to the Professional Calculator REPL!
-Type 'help' for instructions or 'exit' to quit.
+Calculator started. Type 'help' for commands.
 
->>
+Enter command: 
 ```
 
-Enter an operation followed by two numbers:
+**Operation Execution Flow**
+
+The REPL uses a two-step prompt flow for calculations. Select an operation command first, and then enter the target numbers step-by-step when prompted:
+
+1. Type the operation name (e.g., `add`, `multiply`, `power`).
+2. Provide the **First number** and **Second number** at the secondary prompts.
+3. Type `'cancel'` at any point during number input to abort the operation.
+
+Example Interactive Session:
 
 ```bash
-add 5 3
-subtract -10 4
-multiply 2.5 4
-divide 10 2
-power 2 3
+Enter command: add
+
+Enter numbers (or 'cancel' to abort):
+First number: 5
+Second number: 3
+
+Result: 8
+
+Enter command:
 ```
 
 The calculator supports:
@@ -86,14 +97,22 @@ The calculator supports:
 - **`multiply`**
 - **`divide`**
 - **`power`**
+- **`root`**
 
 The calculator handles invalid input, unknown operations, and division by zero with appropriate error messages.
 
+
 # 📜 3. Special Commands
 
-- **`help`** - Displays usage instructions and the list of supported operations
-- **`history`** - Displays all successful calculations performed during the current session
-- **`exit`** - Exits the calculator
+- **`help`** - Displays available commands and usage instructions
+- **`history`** - Displays current calculation history
+- **`exit`** - Auto-saves history and exits REPL
+- **`clear`** - Auto-saves history and exits REPL
+- **`undo`** - Undoes the last calculation using Memento
+- **`redo`** - Redoes the last undone calculation
+- **`save`** - Exports calculation history to file
+- **`load`** - Imports calculation history from file
+
 
 # 🧪 4. Running Tests
 
@@ -103,7 +122,8 @@ Run all tests:
 pytest
 ```
 
-Parameterized tests are used in tests/test_operations.py to efficiently test multiple input scenarios.
+Lines intentionally excluded from coverage requirements use the `# pragma: no cover` comment.
+
 
 # ⚙️ 5. GitHub Actions
 
@@ -120,18 +140,22 @@ The CI workflow:
 ```text
 calculator/
 ├── app/
-│   ├── calculation/
-│   │   └── __init__.py
-│   ├── calculator/
-│   │   └── __init__.py
-│   │── operations/
-│   │    └── __init__.py
-│   └── __init__.py
+│   ├── calculation.py
+│   ├── calculator_config.py
+│   ├── calculator_memento.py
+│   ├── calculator_repl.py
+│   ├── calculator.py
+│   ├── exceptions.py
+│   ├── history.py
+│   ├── input_validators.py
+│   └── operations.py
 ├── tests/
-│   ├── __init__.py
-│   ├── conftest.py
-│   ├── test_caculation.py
-│   ├── test_caculator.py
+│   ├── test_calculation.py
+│   ├── test_calculator.py
+│   ├── test_config.py
+│   ├── test_exceptions.py
+│   ├── test_history.py
+│   ├── test_input_validators.py
 │   └── test_operations.py
 ├── .github/workflows/
 │   └── tests.yml
