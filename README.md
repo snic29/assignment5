@@ -107,7 +107,7 @@ The calculator handles invalid input, unknown operations, and division by zero w
 - **`help`** - Displays available commands and usage instructions
 - **`history`** - Displays current calculation history
 - **`exit`** - Auto-saves history and exits REPL
-- **`clear`** - Auto-saves history and exits REPL
+- **`clear`** - Clears calculation history
 - **`undo`** - Undoes the last calculation using Memento
 - **`redo`** - Redoes the last undone calculation
 - **`save`** - Exports calculation history to file
