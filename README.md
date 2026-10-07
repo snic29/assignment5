@@ -151,8 +151,10 @@ calculator/
 │   └── operations.py
 ├── tests/
 │   ├── test_calculation.py
+│   ├── test_calculator_config.py
+│   ├── test_calculator_memento.py
+│   ├── test_calculator_repl.py
 │   ├── test_calculator.py
-│   ├── test_config.py
 │   ├── test_exceptions.py
 │   ├── test_history.py
 │   ├── test_input_validators.py
